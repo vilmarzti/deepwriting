@@ -335,8 +335,8 @@ class RNNClassifier():
             ops_eval = self.ops_evaluation
         eval_op_list.append(ops_eval)
 
-        feed = {self.inputs    : model_inputs,
-                self.input_seq_length: np.ones(1)*model_inputs.shape[1]}
+        feed = {self.inputs: model_inputs,
+                self.input_seq_length: np.ones(1) * model_inputs.shape[1]}
 
         if model_targets is not None:
             feed[self.targets] = model_targets
