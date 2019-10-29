@@ -50,10 +50,24 @@ def classify(input_config):
     saver.restore(sess, checkpoint_path)
     test = np.array([training_dataset.data_dict['strokes'][0]])
     result = model.classify_given_sample(sess, test)
-    char_prediction = result[0]['char_prediction'][0]
+    process_result(result[0])
+
+
+def process_result(result, training_dataset):
+    char_prediction = result['char_prediction'][0]
+    bow_positions = np.where(result['bow_prediction'] > 0.9)[1]
+    eoc_position = [0] + np.where(result['eoc_prediction'] > 0.9)[1]
     argmax_char = np.argmax(char_prediction, 1)
     alphabet = training_dataset.alphabet
-    chars = [alphabet[pos] for pos in argmax_char]
+    alphabet = np.delete(alphabet, 0)
+    np.insert(eoc_position, 0, 0)
+    eoc_ranges = [(eoc_position[i], eoc_position[i+1]) for i in range(eoc_position.shape[0] - 1)]
+    chars = [alphabet[(pos + 35) % 69] for pos in argmax_char]
+    chars_collapsed = []
+    for r in eoc_ranges:
+        char_range = chars[r[0]: r[1]]
+        most_frequent_char = max(set(char_range), key=char_range.count)
+        chars_collapsed.append(most_frequent_char)
 
 
 if __name__ == "__main__":
