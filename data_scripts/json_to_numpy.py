@@ -266,10 +266,12 @@ def fetch_ids(input_path):
     Returns:
         (dict): 'subjectID' and 'formID'
     """
-    parts = input_path.split('/')
+    # parts = input_path.split('/')
     ids = {}
-    ids['subjectID'] = int(parts[-3])
-    ids['formID'] =  parts[-2]
+    # ids['subjectID'] = int(parts[-3])
+    # ids['formID'] =  parts[-2]
+    ids['subjectID'] = 3
+    ids['formID'] = 2
     return ids
 
 

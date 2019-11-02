@@ -4,6 +4,8 @@ import sys
 import config
 import json
 
+from sklearn.preprocessing import LabelEncoder
+
 from tf_models_hw_classification import BiDirectionalRNNClassifier
 from tf_dataset_hw import *
 from tf_data_feeder import DataFeederTF
@@ -14,7 +16,8 @@ def classify(input_config):
     Model_cls = BiDirectionalRNNClassifier
     Dataset_cls = getattr(sys.modules[__name__], input_config['dataset_cls'])
     training_dataset = Dataset_cls(
-        input_config['training_data'],
+        #input_config['training_data',
+        './deepwriting/data/deepwriting-data.npz',
         use_bow_labels=input_config.get('use_bow_labels', False),
         data_augmentation=input_config.get('data_augmentation', False)
     )
@@ -50,7 +53,7 @@ def classify(input_config):
     saver.restore(sess, checkpoint_path)
     test = np.array([training_dataset.data_dict['strokes'][0]])
     result = model.classify_given_sample(sess, test)
-    process_result(result[0])
+    process_result(result[0], training_dataset)
 
 
 def process_result(result, training_dataset):
@@ -59,15 +62,17 @@ def process_result(result, training_dataset):
     eoc_position = [0] + np.where(result['eoc_prediction'] > 0.9)[1]
     argmax_char = np.argmax(char_prediction, 1)
     alphabet = training_dataset.alphabet
-    alphabet = np.delete(alphabet, 0)
-    np.insert(eoc_position, 0, 0)
+    eoc_position = np.insert(eoc_position, 0, 0)
     eoc_ranges = [(eoc_position[i], eoc_position[i+1]) for i in range(eoc_position.shape[0] - 1)]
-    chars = [alphabet[(pos + 35) % 69] for pos in argmax_char]
+    char_label_encoder = LabelEncoder()
+    char_label_encoder.fit(alphabet)
+    chars = char_label_encoder.inverse_transform(argmax_char)
     chars_collapsed = []
     for r in eoc_ranges:
-        char_range = chars[r[0]: r[1]]
+        char_range = chars[r[0]: r[1]].tolist()
         most_frequent_char = max(set(char_range), key=char_range.count)
         chars_collapsed.append(most_frequent_char)
+    print("".join(chars_collapsed))
 
 
 if __name__ == "__main__":
