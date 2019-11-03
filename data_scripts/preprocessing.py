@@ -451,7 +451,7 @@ data_preprocessed_semantic_300
             out_file = data_file.split('/')[-1].split('.')[0]
 
         if args.merge_input_dictionaries_first is False:
-            process_dataset(args, dataset, out_file)
+            process_dataset(args, dataset, out_file[0])
         else:
             dataset_list.append(dataset)
 
