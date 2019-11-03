@@ -12,13 +12,14 @@ from tf_data_feeder import DataFeederTF
 from dataset_hw import *
 
 
-def classify(input_config):
+
+def getModel(input_config):
     Model_cls = BiDirectionalRNNClassifier
     Dataset_cls = getattr(sys.modules[__name__], input_config['dataset_cls'])
     training_dataset = Dataset_cls(
         # input_config['training_data'],
         # './deepwriting/data/deepwriting-data.npz',
-        './deepwriting/data/data_preprocessed_training.npz',
+        '/home/martin/Documents/code/python3/deepwriting-module/deepwriting/data/data_preprocessed_training.npz',
         use_bow_labels=input_config.get('use_bow_labels', False),
         data_augmentation=input_config.get('data_augmentation', False)
     )
@@ -35,8 +36,6 @@ def classify(input_config):
         queue_capacity=512,
         queue_threads=4
     )
-    sequence_length, inputs, targets = data_feeder.batch_queue(
-        dynamic_pad=training_dataset.is_dynamic, queue_capacity=512, queue_threads=4)
     model = Model_cls(
         input_config,
         reuse=False,
@@ -53,14 +52,25 @@ def classify(input_config):
     saver = tf.train.Saver()
     checkpoint_path = tf.train.latest_checkpoint(input_config['model_dir'])
     saver.restore(sess, checkpoint_path)
-    test = np.array([training_dataset.data_dict['samples'][0]])
-    result = model.classify_given_sample(sess, test)
+        # test = np.array([training_dataset.data_dict['samples'][0]])
+    return model, sess, training_dataset
+
+
+def getConfig():
+    config_path = './deepwriting/runs/tf-1571593867-deepwriting-classification_model/config.json'
+    config_dict = json.load(open(config_path, 'r'))
+    config_dict['batch_size'] = 1
+    tf.set_random_seed(config_dict['seed'])
+    return config_dict
+
+
+def classify(input_config):
+    model, sess, training_dataset = getModel(input_config)
+    result = model.classify_given_sample(sess, np.array([training_dataset.data_dict['samples'][0]]))
     process_result(result[0], training_dataset)
 
 
-def process_result(result, training_dataset):
-    alphabet = training_dataset.alphabet
-
+def process_result(result, alphabet):
     bow_positions = np.where(result['bow_prediction'] > 0.9)[1]
     eoc_positions = np.where(result['eoc_prediction'] > 0.9)[1]
     char_prediction = result['char_prediction'][0]
@@ -86,12 +96,9 @@ def process_result(result, training_dataset):
         if 'bow' in char and idx != 0:
             chars_collapsed.append(" ")
     
-    print("".join(chars_collapsed))
+    return "".join(chars_collapsed)
 
 
 if __name__ == "__main__":
-    config_path = './deepwriting/runs/tf-1571593867-deepwriting-classification_model/config.json'
-    config_dict = json.load(open(config_path, 'r'))
-    config_dict['batch_size'] = 1
-    tf.set_random_seed(config_dict['seed'])
+    config_dict = getConfig()
     classify(config_dict)
