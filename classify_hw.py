@@ -71,8 +71,8 @@ def classify(input_config):
 
 
 def process_result(result, alphabet):
-    bow_positions = np.where(result['bow_prediction'] > 0.9)[1]
-    eoc_positions = np.where(result['eoc_prediction'] > 0.9)[1]
+    bow_positions = np.where(result['bow_prediction'] > 0.8)[1]
+    eoc_positions = np.where(result['eoc_prediction'] > 0.8)[1]
     char_prediction = result['char_prediction'][0]
     argmax_char = np.argmax(char_prediction, 1)
 
