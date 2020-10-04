@@ -1,5 +1,6 @@
 import tensorflow as tf
-import tensorflow.contrib.staging as tf_staging
+import tensorflow.python.ops.data_flow_ops as tf_staging
+#import tensorflow.contrib.staging as tf_staging
 
 import threading
 from dataset import BaseDataset

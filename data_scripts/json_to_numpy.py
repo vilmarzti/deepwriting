@@ -3,7 +3,14 @@ import argparse
 import json
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
+
+# import data_utils from sibling
+import os
+import sys
+print(os.path.abspath('deepwriting/source'))
+sys.path.append(os.path.abspath("deepwriting/source"))
 import data_utils
+
 
 
 """

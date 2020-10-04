@@ -5,8 +5,9 @@ from data_scripts.json_to_numpy import fetch_sample_from_dict, scale_zero_one
 from data_scripts.preprocessing import process_dataset
 from classify_hw import getModel, getConfig, process_result
 
-import data_utils
 import numpy as np
+
+from source import data_utils
 
 
 app = Flask(__name__)
@@ -34,11 +35,11 @@ def evaluate():
 class Args:
     def __init__(self):
         self.amount_validation_samples = -1
-        self.data_file = ['/home/martin/Documents/code/python3/deepwriting-module/deepwriting/data/deepwriting-data.npz']
+        self.data_file = ['/home/martin/Documents/code/python3/deepwriting-module/data/deepwriting_dataset/deepwriting-data.npz']
         self.eoc_labels = False
         self.fixed_length_chunks = None
         self.merge_input_dictionaries_first = False
-        self.out_dir = '/home/martin/Documents/code/python3/deepwriting-module/deepwriting/data'
+        self.out_dir = '/home/martin/Documents/code/deepwriting-module/data/deepwriting_dataset'
         self.out_file = ['data_preprocessed']
         self.relative_representation = True
         self.scale_data_zero_one = False
@@ -75,3 +76,11 @@ def create_data_dict():
 
     data_dict['alphabet'] = alphabet
     return data_dict
+
+
+def main():
+    app.run(port=5000)
+
+
+if __name__ == "__main__":
+    main()

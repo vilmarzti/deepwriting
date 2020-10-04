@@ -19,7 +19,7 @@ def getModel(input_config):
     training_dataset = Dataset_cls(
         # input_config['training_data'],
         # './deepwriting/data/deepwriting-data.npz',
-        '/home/martin/Documents/code/python3/deepwriting-module/deepwriting/data/data_preprocessed_training.npz',
+        '/home/martin/Documents/code/python3/deepwriting-module/deepwriting/data/deepwriting-dataset/data_preprocessed_training.npz',
         use_bow_labels=input_config.get('use_bow_labels', False),
         data_augmentation=input_config.get('data_augmentation', False)
     )
@@ -57,10 +57,10 @@ def getModel(input_config):
 
 
 def getConfig():
-    config_path = './deepwriting/runs/tf-1571593867-deepwriting-classification_model/config.json'
+    config_path = "./data/tf-1514981744-deepwriting_synthesis_model/config.json"
     config_dict = json.load(open(config_path, 'r'))
     config_dict['batch_size'] = 1
-    tf.set_random_seed(config_dict['seed'])
+    tf.random.set_seed(config_dict['seed'])
     return config_dict
 
 
