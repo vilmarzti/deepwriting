@@ -39,9 +39,9 @@ def linear(input, output_size, activation_fn=None, batch_norm=False, is_training
     Returns:
 
     """
-    dense_layer = tf.layers.dense(input, output_size)
+    dense_layer = tf.compat.v1.layers.dense(input, output_size)
     if batch_norm == True and activation_fn is not None:
-        dense_layer = tf.layers.batch_normalization(dense_layer, axis=1, training=is_training)
+        dense_layer = tf.compat.v1.layers.batch_normalization(dense_layer, axis=1, training=is_training)
 
     if isinstance(activation_fn, str):
         activation_fn = get_activation_fn(activation_fn)
@@ -147,9 +147,9 @@ def get_rnn_cell(**kwargs):
         separate_dropout = True
 
     if cell_type.lower() == 'LSTM'.lower():
-        rnn_cell_constructor = tf.nn.rnn_cell.LSTMCell
+        rnn_cell_constructor = tf.compat.v1.nn.rnn_cell.LSTMCell
     elif cell_type.lower() == 'GRU'.lower():
-        rnn_cell_constructor = tf.nn.rnn_cell.GRUCell
+        rnn_cell_constructor = tf.compat.v1.nn.rnn_cell.GRUCell
     elif cell_type.lower() == 'LayerNormBasicLSTMCell'.lower():
         rnn_cell_constructor = tf.contrib.rnn.LayerNormBasicLSTMCell
     else:

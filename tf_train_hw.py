@@ -62,7 +62,7 @@ def train(config):
         sequence_length, inputs, targets = staging_area.tensors
 
     # Create step counter (used by optimization routine and learning rate function.)
-    global_step = tf.get_variable(name='global_step', trainable=False, initializer=1)
+    global_step = tf.compat.v1.get_variable(name='global_step', trainable=False, initializer=1)
 
     # Annealing KL-divergence loss.
     kld_loss_weight_backup = config['loss_weights']['kld_loss']
@@ -329,5 +329,8 @@ if __name__ == '__main__':
         config_dict = config.main()
         config_dict['model_dir'] = None
 
-    tf.set_random_seed(config_dict['seed'])
+    tf.random.set_seed(config_dict['seed'])
+
+    # disable eager execution in version 2.3.
+    tf.compat.v1.disable_eager_execution()
     train(config_dict)

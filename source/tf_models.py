@@ -92,18 +92,18 @@ class VRNN():
     def build_rnn_layer(self):
         # Get VRNN cell output
         if self.config['use_dynamic_rnn']:
-            self.outputs, self.output_state = tf.nn.dynamic_rnn(self.cell,
-                                                                self.inputs,
-                                                                sequence_length=self.input_seq_length,
-                                                                initial_state=self.initial_state,
-                                                                dtype=tf.float32)
+            self.outputs, self.output_state = tf.compat.v1.nn.dynamic_rnn(self.cell,
+                                                                          self.inputs,
+                                                                          sequence_length=self.input_seq_length,
+                                                                          initial_state=self.initial_state,
+                                                                          dtype=tf.float32)
         else:
             inputs_static_rnn = tf.unstack(self.inputs, axis=1)
-            self.outputs_static_rnn, self.output_state = tf.nn.static_rnn(self.cell,
-                                                                     inputs_static_rnn,
-                                                                     initial_state=self.initial_state,
-                                                                     sequence_length=self.input_seq_length,
-                                                                     dtype=tf.float32)
+            self.outputs_static_rnn, self.output_state = tf.compat.v1.nn.static_rnn(self.cell,
+                                                                                    inputs_static_rnn,
+                                                                                    initial_state=self.initial_state,
+                                                                                    sequence_length=self.input_seq_length,
+                                                                                    dtype=tf.float32)
 
             self.outputs = [] # Parse static rnn outputs and convert them into the same format with dynamic rnn.
             if self.config['use_dynamic_rnn'] is False:
@@ -462,14 +462,14 @@ class VRNNGMM(VRNN):
                     self.ops_loss['loss_kld'] = self.kld_loss_weight*self.reduce_loss_func(self.seq_loss_mask*tf_loss.kld_normal_isotropic(self.q_mu, self.q_sigma, self.p_mu, self.p_sigma, reduce_sum=False))
 
             flat_q_pi = tf.reshape(self.q_pi, [-1, self.num_gmm_components])
-            self.dist_q = tf.contrib.distributions.Categorical(logits=flat_q_pi)
+            self.dist_q = tf.compat.v1.distributions.Categorical(logits=flat_q_pi)
 
             if self.use_variational_pi and not "loss_kld_pi" in self.ops_loss:
                 with tf.name_scope('kld_pi_loss'):
                     flat_p_pi = tf.reshape(self.p_pi, [-1, self.num_gmm_components])
-                    self.dist_p = tf.contrib.distributions.Categorical(logits=flat_p_pi)
+                    self.dist_p = tf.compat.v1.distributions.Categorical(logits=flat_p_pi)
 
-                    flat_kld_cat_loss = tf.contrib.distributions.kl_divergence(distribution_a=self.dist_q, distribution_b=self.dist_p)
+                    flat_kld_cat_loss = tf.compat.v1.distributions.kl_divergence(distribution_a=self.dist_q, distribution_b=self.dist_p)
                     temporal_kld_cat_loss = tf.reshape(flat_kld_cat_loss, [self.batch_size, -1, 1])
                     self.ops_loss["loss_kld_pi"] = self.kld_loss_pi_weight*self.reduce_loss_func(self.seq_loss_mask*temporal_kld_cat_loss)
 
@@ -487,7 +487,7 @@ class VRNNGMM(VRNN):
                     flat_labels = tf.reshape(targets_categorical_labels, [-1, prediction_size])
                     flat_predictions = tf.reshape(self.label_predictions, [-1, prediction_size])
 
-                    flat_char_classification_loss = tf.losses.softmax_cross_entropy(flat_labels, flat_predictions, reduction="none")
+                    flat_char_classification_loss = tf.compat.v1.losses.softmax_cross_entropy(flat_labels, flat_predictions, reduction="none")
                     temporal_char_classification_loss = tf.reshape(flat_char_classification_loss, [self.batch_size, -1, 1])
                     self.ops_loss["loss_classification"] = self.classification_loss_weight*self.reduce_loss_func(self.seq_loss_mask*temporal_char_classification_loss)
 
@@ -509,7 +509,7 @@ class VRNNGMM(VRNN):
         """
         if self.is_training:
             for loss_name, loss_op in self.ops_loss.items():
-                tf.summary.scalar(loss_name, loss_op, collections=[self.mode+'_summary_plot', self.mode+'_loss'])
+                tf.compat.v1.summary.scalar(loss_name, loss_op, collections=[self.mode+'_summary_plot', self.mode+'_loss'])
 
         elif self.is_validation: # Validation: first accumulate losses and then log them.
             self.container_loss = {}
@@ -520,11 +520,11 @@ class VRNNGMM(VRNN):
             for loss_name, _ in self.ops_loss.items():
                 self.container_loss[loss_name] = 0
                 self.container_loss_placeholders[loss_name] = tf.placeholder(tf.float32, shape=[])
-                tf.summary.scalar(loss_name, self.container_loss_placeholders[loss_name], collections=[self.mode+'_summary_plot', self.mode+'_loss'])
+                tf.compat.v1.summary.scalar(loss_name, self.container_loss_placeholders[loss_name], collections=[self.mode+'_summary_plot', self.mode+'_loss'])
                 self.container_validation_feed_dict[self.container_loss_placeholders[loss_name]] = 0
 
         for summary_name, scalar_summary_op in self.ops_scalar_summary.items():
-            tf.summary.scalar(summary_name, scalar_summary_op, collections=[self.mode + '_summary_plot', self.mode + '_scalar_summary'])
+            tf.compat.v1.summary.scalar(summary_name, scalar_summary_op, collections=[self.mode + '_summary_plot', self.mode + '_scalar_summary'])
 
         # Create summaries to visualize distribution of latent variables.
         if self.config['tensorboard_verbose'] > 0:

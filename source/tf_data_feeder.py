@@ -33,11 +33,11 @@ class DataFeederTF(object):
         self.num_data_variables = len(self.dataset.sample_shape)
 
         for i in range(self.num_data_variables):
-            self.queue_placeholders.append(tf.placeholder(self.dataset.sample_tf_type[i], shape=self.dataset.sample_shape[i]))
+            self.queue_placeholders.append(tf.compat.v1.placeholder(self.dataset.sample_tf_type[i], shape=self.dataset.sample_shape[i]))
 
         if shuffle:
-            self.input_queue = tf.RandomShuffleQueue(queue_capacity, min_after_dequeue=int(queue_capacity/2),
-                                                     dtypes=self.dataset.sample_tf_type)
+            self.input_queue = tf.queue.RandomShuffleQueue(queue_capacity, min_after_dequeue=int(queue_capacity/2),
+                                                          dtypes=self.dataset.sample_tf_type)
         else:
             self.input_queue = tf.FIFOQueue(queue_capacity, dtypes=self.dataset.sample_tf_type)
 
@@ -56,7 +56,7 @@ class DataFeederTF(object):
         Returns:
 
         """
-        self.batch = tf.train.batch(self.dequeue_op,
+        self.batch = tf.compat.v1.train.batch(self.dequeue_op,
                                     batch_size=self.batch_size,
                                     capacity=int(queue_capacity / 2) + (queue_threads + 2) * self.batch_size,
                                     num_threads=queue_threads,

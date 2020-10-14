@@ -107,7 +107,7 @@ class RNNClassifier():
         useful.
         """
         if self.input_layer_config is not None:
-            with tf.variable_scope('input_layer', reuse=self.reuse):
+            with tf.compat.v1.variable_scope('input_layer', reuse=self.reuse):
                 flat_inputs_hidden = self.flat_tensor(self.inputs)
                 flat_inputs_hidden = fully_connected_layer(flat_inputs_hidden, **self.input_layer_config)
 
@@ -120,7 +120,7 @@ class RNNClassifier():
         """
         Builds RNN layer by using dynamic_rnn wrapper of Tensorflow.
         """
-        with tf.variable_scope("rnn_layer", reuse=self.reuse):
+        with tf.compat.v1.variable_scope("rnn_layer", reuse=self.reuse):
             self.outputs, self.output_state = tf.nn.dynamic_rnn(self.cell,
                                                                 self.inputs_hidden,
                                                                 sequence_length=self.input_seq_length,
@@ -133,24 +133,24 @@ class RNNClassifier():
         output is predicted by a linear layer.
         """
         flat_outputs_hidden = self.flat_tensor(self.outputs)
-        with tf.variable_scope('output_layer_hidden', reuse=self.reuse):
+        with tf.compat.v1.variable_scope('output_layer_hidden', reuse=self.reuse):
             flat_outputs_hidden = fully_connected_layer(flat_outputs_hidden, **self.output_layer_config)
 
-        with tf.variable_scope("output_layer_char", reuse=self.reuse):
+        with tf.compat.v1.variable_scope("output_layer_char", reuse=self.reuse):
             self.flat_char_prediction = linear(input=flat_outputs_hidden,
                                                output_size=self.target_dims[0],
                                                activation_fn=self.output_layer_config['out_activation_fn'][0],
                                                is_training=self.is_training)
             self.char_prediction = self.temporal_tensor(self.flat_char_prediction)
 
-        with tf.variable_scope("output_layer_eoc", reuse=self.reuse):
+        with tf.compat.v1.variable_scope("output_layer_eoc", reuse=self.reuse):
             self.flat_eoc_prediction = linear(input=flat_outputs_hidden,
                                                output_size=self.target_dims[1],
                                                activation_fn=self.output_layer_config['out_activation_fn'][1],
                                                is_training=self.is_training)
             self.eoc_prediction = self.temporal_tensor(self.flat_eoc_prediction)
 
-        with tf.variable_scope("output_layer_bow", reuse=self.reuse):
+        with tf.compat.v1.variable_scope("output_layer_bow", reuse=self.reuse):
             self.flat_bow_prediction = linear(input=flat_outputs_hidden,
                                                output_size=self.target_dims[2],
                                                activation_fn=self.output_layer_config['out_activation_fn'][2],
@@ -385,7 +385,7 @@ class BiDirectionalRNNClassifier(RNNClassifier):
             self.initial_states_bw.append(cell_bw.zero_state(batch_size=self.batch_size, dtype=tf.float32))
 
     def build_rnn_layer(self):
-        with tf.variable_scope("bidirectional_rnn_layer", reuse=self.reuse):
+        with tf.compat.v1.variable_scope("bidirectional_rnn_layer", reuse=self.reuse):
             if self.stack_fw_bw_cells:
                 self.outputs, self.output_state_fw, self.output_state_bw = tf.contrib.rnn.stack_bidirectional_dynamic_rnn(
                     cells_fw=self.cells_fw,

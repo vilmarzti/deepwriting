@@ -11,7 +11,7 @@ paradigm.
 `build_training_graph` and `build_sampling_graph` methods are used to create the cell by tensorflow's forward call.
 """
 
-class VRNNCell(tf.contrib.rnn.RNNCell):
+class VRNNCell(tf.compat.v1.nn.rnn_cell.RNNCell):
     """
     Variational RNN cell.
 
@@ -124,8 +124,8 @@ class VRNNCell(tf.contrib.rnn.RNNCell):
         Returns:
 
         """
-        with tf.variable_scope(scope):
-            eps = tf.random_normal(sigma.get_shape(), 0.0, 1.0, dtype=tf.float32)
+        with tf.compat.v1.variable_scope(scope):
+            eps = tf.random.normal(sigma.get_shape(), 0.0, 1.0, dtype=tf.float32)
             z = tf.add(mu, tf.multiply(sigma, eps))
 
             return z
@@ -142,7 +142,7 @@ class VRNNCell(tf.contrib.rnn.RNNCell):
         Returns:
 
         """
-        with tf.variable_scope(scope, reuse=reuse):
+        with tf.compat.v1.variable_scope(scope, reuse=reuse):
             phi_hidden = input_
             for i in range(self.num_linear_layers):
                 phi_hidden = linear(phi_hidden, self.h_dim, self.activation_func, batch_norm=self.use_batch_norm)
@@ -161,11 +161,11 @@ class VRNNCell(tf.contrib.rnn.RNNCell):
         Returns:
 
         """
-        with tf.variable_scope(scope):
+        with tf.compat.v1.variable_scope(scope):
             latent_hidden = linear(input_, self.h_dim, self.activation_func, batch_norm=self.use_batch_norm)
-            with tf.variable_scope("mu"):
+            with tf.compat.v1.variable_scope("mu"):
                 mu = linear(latent_hidden, self.z_dim)
-            with tf.variable_scope("sigma"):
+            with tf.compat.v1.variable_scope("sigma"):
                 sigma = linear(latent_hidden, self.z_dim, self.sigma_func)
 
             return mu, sigma
@@ -245,7 +245,7 @@ class VRNNCell(tf.contrib.rnn.RNNCell):
         Returns:
 
         """
-        with tf.variable_scope("input"):
+        with tf.compat.v1.variable_scope("input"):
             input_components = tf.split(input_, self.input_dims, axis=1)
             self.x = input_components[0]
 
@@ -290,7 +290,7 @@ class VRNNCell(tf.contrib.rnn.RNNCell):
     def output_layer(self):
         self.output_components = {}
         for key, size, activation_func in zip(self.output_config['keys'], self.output_config['dims'], self.output_config['activation_funcs']):
-            with tf.variable_scope(key):
+            with tf.compat.v1.variable_scope(key):
                 output_component = linear(self.phi_x_output, size, activation_fn=get_activation_fn(activation_func))
                 self.output_components[key] = output_component
 
@@ -299,7 +299,7 @@ class VRNNCell(tf.contrib.rnn.RNNCell):
         self.latent_rnn_output, self.latent_rnn_state = self.latent_rnn_cell(input_latent_rnn, self.latent_rnn_state)
 
     def __call__(self, input_, state, scope=None):
-        with tf.variable_scope(scope or type(self).__name__, reuse=self.reuse):
+        with tf.compat.v1.variable_scope(scope or type(self).__name__, reuse=self.reuse):
             if self.is_sampling:
                 self.build_sampling_graph(input_, state)
             else:
@@ -366,9 +366,9 @@ class VRNNGmmCell(VRNNCell):
 
         if self.is_gmm_active:
             # Create mean and sigma variables of gmm components.
-            with tf.variable_scope("gmm_latent", reuse=self.reuse):
-                self.gmm_mu_vars = tf.get_variable("mu", dtype=tf.float32, initializer=tf.random_uniform([self.num_gmm_components, self.gmm_component_size], -1.0, 1.0))
-                self.gmm_sigma_vars = self.sigma_func(tf.get_variable("sigma", dtype=tf.float32, initializer=tf.constant_initializer(1), shape=[self.num_gmm_components, self.gmm_component_size]))
+            with tf.compat.v1.variable_scope("gmm_latent", reuse=self.reuse):
+                self.gmm_mu_vars = tf.compat.v1.get_variable("mu", dtype=tf.float32, initializer=tf.random.uniform([self.num_gmm_components, self.gmm_component_size], -1.0, 1.0))
+                self.gmm_sigma_vars = self.sigma_func(tf.compat.v1.get_variable("sigma", dtype=tf.float32, initializer=tf.constant_initializer(1), shape=[self.num_gmm_components, self.gmm_component_size]))
         else:
             self.gmm_mu_vars = self.gmm_sigma_vars = None
             self.gmm_component_size = self.input_dims[1]
@@ -483,7 +483,7 @@ class VRNNGmmCell(VRNNCell):
 
     def latent_q_pi(self):
         input_ = tf.concat((self.x, self.latent_h), axis=1)
-        with tf.variable_scope("latent_q_pi"):
+        with tf.compat.v1.variable_scope("latent_q_pi"):
             phi_pi = linear(input_, self.h_dim, self.activation_func, batch_norm=self.use_batch_norm)
             self.logits_q_pi = linear(phi_pi, self.num_gmm_components, activation_fn=None,
                                       batch_norm=self.use_batch_norm)
@@ -491,7 +491,7 @@ class VRNNGmmCell(VRNNCell):
 
     def latent_p_pi(self):
         input_ = tf.concat((self.latent_h), axis=1)
-        with tf.variable_scope("latent_p_pi"):
+        with tf.compat.v1.variable_scope("latent_p_pi"):
             phi_pi = linear(input_, self.h_dim, self.activation_func, batch_norm=self.use_batch_norm)
             self.logits_p_pi = linear(phi_pi, self.num_gmm_components, activation_fn=None,
                                       batch_norm=self.use_batch_norm)
@@ -516,7 +516,7 @@ class VRNNGmmCell(VRNNCell):
 
 
     def input_layer(self, input_, state):
-        with tf.variable_scope("input"):
+        with tf.compat.v1.variable_scope("input"):
             input_components = tf.split(input_, self.input_dims, axis=1)
             #self.x = tf.nn.dropout(input_components[0], keep_prob=self.dropout_keep_prob)
             self.x = input_components[0]
@@ -552,7 +552,7 @@ class VRNNGmmCell(VRNNCell):
         self.output_components = {}
         for key, size, activation_func in zip(self.output_config['keys'], self.output_config['dims'],
                                               self.output_config['activation_funcs']):
-            with tf.variable_scope(key):
+            with tf.compat.v1.variable_scope(key):
                 output_component = linear(self.phi_x_output, size, activation_fn=get_activation_fn(activation_func))
                 self.output_components[key] = output_component
 
@@ -567,7 +567,7 @@ class VRNNGmmCell(VRNNCell):
 
 
     def __call__(self, input_, state, scope=None):
-        with tf.variable_scope(scope or type(self).__name__, reuse=self.reuse):
+        with tf.compat.v1.variable_scope(scope or type(self).__name__, reuse=self.reuse):
             if self.is_sampling:
                 self.build_sampling_graph(input_, state)
             else:
@@ -642,10 +642,10 @@ class HandWritingVRNNGmmCell(VRNNGmmCell):
         return tf.concat(sample_components, axis=1)
 
     def input_layer(self, input_, state):
-        with tf.variable_scope("input"):
+        with tf.compat.v1.variable_scope("input"):
 
             input_components = tf.split(input_, self.input_dims, axis=1)
-            self.x = tf.nn.dropout(input_components[0], keep_prob=self.dropout_keep_prob)
+            self.x = tf.compat.v1.nn.dropout(input_components[0], keep_prob=self.dropout_keep_prob)
 
             if self.use_real_pi_labels:
                 self.real_pi = input_components[1] # Character labels.

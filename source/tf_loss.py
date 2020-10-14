@@ -23,13 +23,13 @@ def logli_normal_bivariate(x, mu, sigma, rho, reduce_sum=False):
     with tf.name_scope('logli_normal_bivariate'):
         x_mu1 = tf.subtract(x1, mu1)
         x_mu2 = tf.subtract(x2, mu2)
-        Z = tf.square(tf.div(x_mu1, tf.maximum(1e-9, sigma1))) + \
-            tf.square(tf.div(x_mu2, tf.maximum(1e-9, sigma2))) - \
-            2*tf.div(tf.multiply(rho, tf.multiply(x_mu1, x_mu2)), tf.maximum(1e-9, tf.multiply(sigma1, sigma2)))
+        Z = tf.square(tf.math.divide(x_mu1, tf.maximum(1e-9, sigma1))) + \
+            tf.square(tf.math.divide(x_mu2, tf.maximum(1e-9, sigma2))) - \
+            2*tf.math.divide(tf.multiply(rho, tf.multiply(x_mu1, x_mu2)), tf.maximum(1e-9, tf.multiply(sigma1, sigma2)))
 
         rho_square_term = tf.maximum(1e-9, 1-tf.square(rho))
-        log_regularize_term = tf.log(tf.maximum(1e-9, 2*np.pi*tf.multiply(tf.multiply(sigma1, sigma2), tf.sqrt(rho_square_term)) ))
-        log_power_e = tf.div(Z, 2*rho_square_term)
+        log_regularize_term = tf.math.log(tf.maximum(1e-9, 2*np.pi*tf.multiply(tf.multiply(sigma1, sigma2), tf.sqrt(rho_square_term)) ))
+        log_power_e = tf.math.divide(Z, 2*rho_square_term)
         result = -(log_regularize_term + log_power_e)
 
         if reduce_sum is False:
@@ -77,7 +77,7 @@ def logli_bernoulli(x, theta, reduce_sum=False):
 
     """
     with tf.name_scope('logli_bernoulli'):
-        result = (tf.multiply(x, tf.log(tf.maximum(1e-9, theta))) + tf.multiply((1 - x), tf.log(tf.maximum(1e-9, 1 - theta))))
+        result = (tf.multiply(x, tf.math.log(tf.maximum(1e-9, theta))) + tf.multiply((1 - x), tf.math.log(tf.maximum(1e-9, 1 - theta))))
 
         if reduce_sum is False:
             return result
@@ -101,8 +101,8 @@ def kld_normal_isotropic(mu1, sigma1, mu2, sigma2, reduce_sum=False):
     """
     with tf.name_scope("kld_normal_isotropic"):
         result = tf.reduce_sum(0.5 * (
-            2 * tf.log(tf.maximum(1e-9, sigma2))
-            - 2 * tf.log(tf.maximum(1e-9, sigma1))
+            2 * tf.math.log(tf.maximum(1e-9, sigma2))
+            - 2 * tf.math.log(tf.maximum(1e-9, sigma1))
             + (tf.square(sigma1) + tf.square(mu1 - mu2)) / tf.maximum(1e-9, (tf.square(sigma2))) - 1), keepdims=True, axis=-1)
 
         if reduce_sum is False:

@@ -5,10 +5,10 @@ import numpy as np
 def main():
     config = dict()
     config['seed'] = 17
-    tf.set_random_seed(17)
+    tf.random.set_seed(17)
 
-    config['training_data'] = './data/deepwriting_training.npz'
-    config['validation_data'] = './data/deepwriting_validation.npz'
+    config['training_data'] = '../data/deepwriting_dataset/deepwriting_training.npz'
+    config['validation_data'] = '../data/deepwriting_dataset/deepwriting_validation.npz'
     config['validate_model'] = False
 
     config['model_save_dir'] = './runs/'
@@ -30,7 +30,7 @@ def main():
     config['create_timeline'] = False
     config['tensorboard_verbose'] = 0  # 1 for histogram summaries and 2 for latent space norms.
     config['use_dynamic_rnn'] = True
-    config['use_bucket_feeder'] = True
+    config['use_bucket_feeder'] = False
     config['use_staging_area'] = True
 
     config['grad_clip_by_norm'] = 1  # If it is 0, then gradient clipping will not be applied.
