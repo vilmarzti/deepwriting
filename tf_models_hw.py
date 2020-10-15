@@ -1,6 +1,6 @@
 import sys
 import deepwriting.source.tf_loss as tf_loss
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import numpy as np
 
 from deepwriting.source.tf_models import VRNN, VRNNGMM

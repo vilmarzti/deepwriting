@@ -1,9 +1,10 @@
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import tensorflow.python.ops.data_flow_ops as tf_staging
-#import tensorflow.contrib.staging as tf_staging
 
 import threading
-from dataset import BaseDataset
+from deepwriting.source.dataset import BaseDataset
+
+tf.compat.v1.disable_eager_execution()
 
 
 class DataFeederTF(object):
@@ -39,7 +40,7 @@ class DataFeederTF(object):
             self.input_queue = tf.queue.RandomShuffleQueue(queue_capacity, min_after_dequeue=int(queue_capacity/2),
                                                           dtypes=self.dataset.sample_tf_type)
         else:
-            self.input_queue = tf.FIFOQueue(queue_capacity, dtypes=self.dataset.sample_tf_type)
+            self.input_queue = tf.compat.v1.FIFOQueue(queue_capacity, dtypes=self.dataset.sample_tf_type)
 
         self.enqueue_op = self.input_queue.enqueue(self.queue_placeholders)
         self.dequeue_op = self.input_queue.dequeue()
@@ -81,7 +82,7 @@ class DataFeederTF(object):
         Returns:
 
         """
-        batch_seq_lens, self.batch = tf.contrib.training.bucket_by_sequence_length(
+        batch_seq_lens, self.batch = tf.data.experimental.bucket_by_sequence_length(
                                     input_length=self.dequeue_op[0],
                                     tensors=self.dequeue_op,
                                     batch_size=self.batch_size,

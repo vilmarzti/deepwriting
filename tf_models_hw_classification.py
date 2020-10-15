@@ -1,8 +1,8 @@
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import numpy as np
 
-import tf_loss
-from tf_model_utils import fully_connected_layer, linear, get_reduce_loss_func, get_rnn_cell
+import deepwriting.source.tf_loss as tf_loss
+from deepwriting.source.tf_model_utils import fully_connected_layer, linear, get_reduce_loss_func, get_rnn_cell
 
 """
 Handwriting Classification/Segmentation Models
@@ -174,7 +174,7 @@ class RNNClassifier():
         """
         with tf.name_scope('cross_entropy_char_loss'):
             flat_char_targets = tf.reshape(self.target_pieces[0], [-1, self.target_dims[0]])
-            flat_char_classification_loss = tf.losses.softmax_cross_entropy(flat_char_targets, self.flat_char_prediction, reduction="none")
+            flat_char_classification_loss = tf.compat.v1.losses.softmax_cross_entropy(flat_char_targets, self.flat_char_prediction, reduction="none")
             char_classification_loss = tf.reshape(flat_char_classification_loss, [self.batch_size, -1, 1])
             self.ops_loss['loss_cross_entropy_char'] = self.weight_classification_loss*self.reduce_loss_func(self.input_mask*char_classification_loss)
 
@@ -231,7 +231,7 @@ class RNNClassifier():
         Prints total number of parameters.
         """
         num_param = 0
-        for v in tf.global_variables():
+        for v in tf.compat.v1.global_variables():
             num_param += np.prod(v.get_shape().as_list())
 
         self.num_parameters = num_param
@@ -250,7 +250,7 @@ class RNNClassifier():
         if self.is_training:
             # For each loss term, create a tensorboard plot.
             for loss_name, loss_op in self.ops_loss.items():
-                tf.summary.scalar(loss_name, loss_op, collections=[self.mode + '_summary_plot', self.mode + '_loss'])
+                tf.compat.v1.summary.scalar(loss_name, loss_op, collections=[self.mode + '_summary_plot', self.mode + '_loss'])
 
         else:
             # Validation: first accumulate losses and then plot.
@@ -270,7 +270,7 @@ class RNNClassifier():
                 self.container_validation_feed_dict[self.container_loss_placeholders[loss_name]] = 0.0
 
         for summary_name, scalar_summary_op in self.ops_scalar_summary.items():
-            tf.summary.scalar(summary_name, scalar_summary_op, collections=[self.mode + '_summary_plot', self.mode + '_scalar_summary'])
+            tf.compat.v1.summary.scalar(summary_name, scalar_summary_op, collections=[self.mode + '_summary_plot', self.mode + '_scalar_summary'])
 
         self.loss_summary = tf.compat.v1.summary.merge_all(self.mode + '_summary_plot')
 
@@ -396,7 +396,7 @@ class BiDirectionalRNNClassifier(RNNClassifier):
                     dtype=tf.float32,
                     sequence_length=self.input_seq_length)
             else:
-                outputs_tuple, output_states = tf.nn.bidirectional_dynamic_rnn(cell_fw=self.cells_fw[0],
+                outputs_tuple, output_states = tf.compat.v1.nn.bidirectional_dynamic_rnn(cell_fw=self.cells_fw[0],
                                                                                cell_bw=self.cells_bw[0],
                                                                                inputs=self.inputs_hidden,
                                                                                sequence_length=self.input_seq_length,

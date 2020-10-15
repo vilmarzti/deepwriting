@@ -1,4 +1,4 @@
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 
 def get_activation_fn(type='relu'):
     """
@@ -168,7 +168,7 @@ def get_rnn_cell(**kwargs):
         rnn_cells.append(cell)
 
     if num_layers > 1:
-        cell = tf.nn.rnn_cell.MultiRNNCell(cells=rnn_cells, state_is_tuple=True)
+        cell = tf.compat.v1.nn.rnn_cell.MultiRNNCell(cells=rnn_cells, state_is_tuple=True)
     else:
         cell = rnn_cells[0]
 

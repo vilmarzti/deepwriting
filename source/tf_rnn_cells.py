@@ -1,4 +1,4 @@
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 
 from deepwriting.source.tf_model_utils import linear, get_activation_fn, get_rnn_cell
 

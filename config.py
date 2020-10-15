@@ -1,4 +1,4 @@
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import numpy as np
 
 
@@ -101,10 +101,10 @@ def main():
 def classifier():
     config = dict()
     config['seed'] = 17
-    tf.set_random_seed(17)
+    tf.compat.v1.set_random_seed(17)
 
-    config['training_data'] = './data/deepwriting_training.npz'
-    config['validation_data'] = './data/deepwriting_validation.npz'
+    config['training_data'] = './data/dataset/deepwriting_training.npz'
+    config['validation_data'] = './data/dataset/deepwriting_validation.npz'
     config['validate_model'] = True
 
     config['model_save_dir'] = './runs/'
@@ -123,7 +123,7 @@ def classifier():
 
     config['tensorboard_verbose'] = 1  # 1 for histogram summaries and 2 for latent space norms.
     config['use_dynamic_rnn'] = True
-    config['use_bucket_feeder'] = True
+    config['use_bucket_feeder'] = False
     config['use_staging_area'] = True
 
     config['grad_clip_by_norm'] = 1  # If it is 0, then gradient clipping will not be applied.
@@ -144,8 +144,8 @@ def classifier():
     config['rnn_layer'] = {}  # See get_rnn_cell function in tf_model_utils.
     config['rnn_layer']['num_layers'] = 4  # (default: 1)
     config['rnn_layer']['cell_type'] = 'lstm'  # (default: 'lstm')
-    config['rnn_layer']['size'] = 256  # (default: 512)
-    config['rnn_layer']['stack_fw_bw_cells'] = True  # (default: True). Only used in bidirectional models.
+    config['rnn_layer']['size'] = 512  # (default: 512)
+    config['rnn_layer']['stack_fw_bw_cells'] = False  # (default: True). Only used in bidirectional models.
 
     config['output_layer'] = {}
     config['output_layer']['num_layers'] = 1  # number of FC layers on top of RNN.

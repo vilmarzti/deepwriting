@@ -5,14 +5,14 @@ import time
 import os
 import argparse
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 from tensorflow.python.ops import math_ops
 from tensorflow.python.framework import dtypes
 
-from tf_dataset_hw import *
-from tf_data_feeder import *
-from tf_models_hw_classification import *
-from utils import get_model_dir_timestamp
+from deepwriting.tf_dataset_hw import *
+from deepwriting.source.tf_data_feeder import *
+from deepwriting.tf_models_hw_classification import *
+from deepwriting.source.utils import get_model_dir_timestamp
 
 """
 Model Training Script. 
@@ -261,7 +261,7 @@ def train(config):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-S', '--model_save_dir', type=str, default='./runs/', help='path to main model save directory')
-    parser.add_argument('-M', '--model_id', dest='model_id',  type=str, help='model folder')
+    parser.add_argument('-M', '--model_id', dest='model_id', default=None, type=str, help='model folder')
     parser.add_argument('--checkpoint_id', type=str, default=None, help='log and output directory')
     args = parser.parse_args()
 
@@ -274,9 +274,9 @@ if __name__ == '__main__':
         config_dict['model_id'] = args.model_id
     else:
         # Fresh training
-        import config
+        import deepwriting.config as config
         config_dict = config.classifier()
         config_dict['model_dir'] = None
 
-    tf.set_random_seed(config_dict['seed'])
+    tf.compat.v1.set_random_seed(config_dict['seed'])
     train(config_dict)
