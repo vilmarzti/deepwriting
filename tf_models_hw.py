@@ -1,10 +1,10 @@
 import sys
-import tf_loss
+import deepwriting.source.tf_loss as tf_loss
 import tensorflow as tf
 import numpy as np
 
-from tf_models import VRNN, VRNNGMM
-from tf_rnn_cells import *
+from deepwriting.source.tf_models import VRNN, VRNNGMM
+from deepwriting.source.tf_rnn_cells import *
 
 """
 If opencv is installed, then you can visualize images of real and synthetic handwriting samples in tensorboard. 
@@ -13,8 +13,8 @@ Note that the experiment folder takes much more space (~2-3 GB).
 from importlib import util as importlib_util
 VISUAL_MODE = False
 if importlib_util.find_spec("cv2") is not None:
-    from visualize_hw import draw_stroke_cv2
-    from utils_visualization import plot_and_get_image
+    from deepwriting.visualize_hw import draw_stroke_cv2
+    from deepwriting.source.utils_visualization import plot_and_get_image
     VISUAL_MODE = True
     print("VISUAL_MODE is active.")
 
@@ -112,7 +112,7 @@ class HandwritingVRNNModel(VRNN):
 
         When `get_image_summary` method is called, for every registered `op` first evaluated results are converted into
         images and stored in containers (`container_img`). Then a summary object is created by passing these containers
-        to tf.placeholders (`container_img_placeholders`).
+        totf.compat.v1.placeholders (`container_img_placeholders`).
 
         Args:
             session: tensorflow session.
@@ -166,13 +166,13 @@ class HandwritingVRNNModel(VRNN):
                     # To store images.
                     self.container_img[op_name] = np.zeros(summary_dict['img_shape'])
                     # To pass images to summary
-                    self.container_img_placeholders[op_name] = tf.placeholder(summary_dict['data_type'], summary_dict['img_shape'])
+                    self.container_img_placeholders[op_name] = tf.compat.v1.placeholder(summary_dict['data_type'], summary_dict['img_shape'])
                     # Summary.
-                    tf.summary.image(op_name, self.container_img_placeholders[op_name], collections=[self.mode+'_summary_img'], max_outputs=summary_dict['num_img'])
+                    tf.compat.v1.summary.image(op_name, self.container_img_placeholders[op_name], collections=[self.mode+'_summary_img'], max_outputs=summary_dict['num_img'])
                     # Feed dictionary.
                     self.container_img_feed_dict[self.container_img_placeholders[op_name]] = 0
 
-            self.img_summary = tf.summary.merge_all(self.mode+'_summary_img')
+            self.img_summary = tf.compat.v1.summary.merge_all(self.mode+'_summary_img')
 
     def get_image_summary(self, session, ops_img_summary_evaluated=None, seq_len=500):
         """

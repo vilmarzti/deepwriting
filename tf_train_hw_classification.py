@@ -195,7 +195,7 @@ def train(config):
         pass
 
     # Create lists of training and validation graph operations for session.run. Note that models create them.
-    training_summary = tf.summary.merge_all('training_status')
+    training_summary = tf.compat.v1.summary.merge_all('training_status')
     training_run_ops = [model.loss_summary, training_summary, model.ops_loss, train_op]
     if config.get('validate_model', False):
         validation_run_ops = [valid_model.ops_loss]

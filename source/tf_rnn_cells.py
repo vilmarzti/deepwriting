@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from tf_model_utils import linear, get_activation_fn, get_rnn_cell
+from deepwriting.source.tf_model_utils import linear, get_activation_fn, get_rnn_cell
 
 """
 VRNN cell classes.

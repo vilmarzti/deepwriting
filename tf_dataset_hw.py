@@ -1,5 +1,5 @@
 import tensorflow as tf
-from dataset_hw import *
+from deepwriting.dataset_hw import *
 
 
 class HandWritingDatasetTF(HandWritingDataset):

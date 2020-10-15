@@ -265,14 +265,14 @@ class RNNClassifier():
 
             for loss_name, _ in self.ops_loss.items():
                 self.container_loss[loss_name] = 0
-                self.container_loss_placeholders[loss_name] = tf.placeholder(tf.float32, shape=[])
+                self.container_loss_placeholders[loss_name] =tf.compat.v1.placeholder(tf.float32, shape=[])
                 tf.summary.scalar(loss_name, self.container_loss_placeholders[loss_name], collections=[self.mode + '_summary_plot', self.mode + '_loss'])
                 self.container_validation_feed_dict[self.container_loss_placeholders[loss_name]] = 0.0
 
         for summary_name, scalar_summary_op in self.ops_scalar_summary.items():
             tf.summary.scalar(summary_name, scalar_summary_op, collections=[self.mode + '_summary_plot', self.mode + '_scalar_summary'])
 
-        self.loss_summary = tf.summary.merge_all(self.mode + '_summary_plot')
+        self.loss_summary = tf.compat.v1.summary.merge_all(self.mode + '_summary_plot')
 
     ########################################
     # Summary methods for validation mode.

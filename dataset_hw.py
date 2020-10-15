@@ -3,8 +3,8 @@ import scipy.signal
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder
 
-import utils_hw as utils
-from dataset import BaseDataset
+import deepwriting.utils_hw as utils
+from deepwriting.source.dataset import BaseDataset
 
 
 class HandWritingDataset(BaseDataset):

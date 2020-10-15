@@ -5,13 +5,15 @@ import sys
 import os
 import argparse
 import json
-from scipy.misc import imsave
 
-from tf_dataset_hw import *
-from tf_models import VRNNGMM
-from tf_models_hw import HandwritingVRNNGmmModel, HandwritingVRNNModel
-from utils_visualization import plot_latent_variables, plot_latent_categorical_variables, plot_matrix_and_get_image, plot_and_get_image
-import visualize_hw as visualize
+from tensorflow.keras.preprocessing.image import save_img
+# from scipy.misc import imsave 
+
+from deepwriting.tf_dataset_hw import *
+from deepwriting.source.tf_models import VRNNGMM
+from deepwriting.tf_models_hw import HandwritingVRNNGmmModel, HandwritingVRNNModel
+from deepwriting.source.utils_visualization import plot_latent_variables, plot_latent_categorical_variables, plot_matrix_and_get_image, plot_and_get_image
+import deepwriting.visualize_hw as visualize
 
 # Sampling options
 run_gmm_eval = False  # Visualize GMM latent space by using random samples and T-SNE.
@@ -85,6 +87,7 @@ def plot_eval_details(data_dict, sample, save_dir, save_name):
 
 def do_evaluation(config, qualitative_analysis=True, quantitative_analysis=True, verbose=0):
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+    tf.compat.v1.disable_eager_execution()
 
     Model_cls = getattr(sys.modules[__name__], config['model_cls'])
     Dataset_cls = getattr(sys.modules[__name__], config['dataset_cls'])
@@ -99,9 +102,9 @@ def do_evaluation(config, qualitative_analysis=True, quantitative_analysis=True,
     else:
         raise Exception("Unknown dataset class.")
 
-    strokes = tf.placeholder(tf.float32, shape=[batch_size, data_sequence_length, sum(validation_dataset.input_dims)])
-    targets = tf.placeholder(tf.float32, shape=[batch_size, data_sequence_length, sum(validation_dataset.target_dims)])
-    sequence_length = tf.placeholder(tf.int32, shape=[batch_size])
+    strokes = tf.compat.v1.placeholder(tf.float32, shape=[batch_size, data_sequence_length, sum(validation_dataset.input_dims)])
+    targets = tf.compat.v1.placeholder(tf.float32, shape=[batch_size, data_sequence_length, sum(validation_dataset.target_dims)])
+    sequence_length = tf.compat.v1.placeholder(tf.int32, shape=[batch_size])
 
     # Create inference graph.
     with tf.name_scope("validation"):
@@ -133,10 +136,10 @@ def do_evaluation(config, qualitative_analysis=True, quantitative_analysis=True,
         model.build_graph()
 
     # Create a session object and initialize parameters.
-    sess = tf.Session()
+    sess = tf.compat.v1.Session()
     # Restore computation graph.
     try:
-        saver = tf.train.Saver()
+        saver = tf.compat.v1.train.Saver()
         # Restore variables.
         if config['checkpoint_id'] is None:
             checkpoint_path = tf.train.latest_checkpoint(config['model_dir'])
@@ -293,11 +296,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-S', '--model_save_dir', dest='model_save_dir', type=str, default='./runs/', help='path to main model save directory')
     parser.add_argument('-E', '--eval_dir', type=str, default='./runs_evaluation/', help='path to main log/output directory')
-    parser.add_argument('-M', '--model_id', dest='model_id', type=str, help='model folder')
+    parser.add_argument('-M', '--model_id', dest='model_id', default="", type=str, help='model folder')
     parser.add_argument('-C', '--checkpoint_id', type=str, default=None, help='log and output directory')
     parser.add_argument('-QN', '--quantitative', dest='quantitative', action="store_true", help='Run quantitative analysis')
     parser.add_argument('-QL', '--qualitative', dest='qualitative', action="store_true", help='Run qualitative analysis')
     parser.add_argument('-V', '--verbose', dest='verbose', type=int, default=1, help='Verbosity')
+    print(sys.argv)
     args = parser.parse_args()
 
     config_dict = json.load(open(os.path.abspath(os.path.join(args.model_save_dir, args.model_id, 'config.json')), 'r'))

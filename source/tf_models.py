@@ -2,9 +2,9 @@ import tensorflow as tf
 import numpy as np
 import sys
 import time
-import tf_loss
-from tf_rnn_cells import VRNNCell, VRNNGmmCell
-from tf_model_utils import get_reduce_loss_func
+import deepwriting.source.tf_loss as tf_loss
+from deepwriting.source.tf_rnn_cells import VRNNCell, VRNNGmmCell
+from deepwriting.source.tf_model_utils import get_reduce_loss_func
 
 """
 Vanilla variational recurrent neural network model. Assuming that model outputs are isotropic Gaussian distributions.
@@ -183,7 +183,7 @@ class VRNN():
 
     def log_num_parameters(self):
         num_param = 0
-        for v in tf.global_variables():
+        for v in tf.compat.v1.global_variables():
             num_param += np.prod(v.get_shape().as_list())
 
         self.num_parameters = num_param
@@ -213,7 +213,7 @@ class VRNN():
 
             for loss_name, _ in self.ops_loss.items():
                 self.container_loss[loss_name] = 0
-                self.container_loss_placeholders[loss_name] = tf.placeholder(tf.float32, shape=[])
+                self.container_loss_placeholders[loss_name] =tf.compat.v1.placeholder(tf.float32, shape=[])
                 tf.summary.scalar(loss_name, self.container_loss_placeholders[loss_name], collections=[self.mode+'_summary_plot', self.mode+'_loss'])
                 self.container_validation_feed_dict[self.container_loss_placeholders[loss_name]] = 0
 
@@ -229,7 +229,7 @@ class VRNN():
             tf.summary.histogram("out_mu", self.out_mu, collections=[self.mode+'_summary_plot', self.mode+'_stochastic_variables'])
             tf.summary.histogram("out_sigma", self.out_sigma, collections=[self.mode+'_summary_plot', self.mode+'_stochastic_variables'])
 
-        self.loss_summary = tf.summary.merge_all(self.mode+'_summary_plot')
+        self.loss_summary = tf.compat.v1.summary.merge_all(self.mode+'_summary_plot')
 
     ########################################
     # Summary methods for validation mode.
@@ -519,7 +519,7 @@ class VRNNGMM(VRNN):
 
             for loss_name, _ in self.ops_loss.items():
                 self.container_loss[loss_name] = 0
-                self.container_loss_placeholders[loss_name] = tf.placeholder(tf.float32, shape=[])
+                self.container_loss_placeholders[loss_name] = tf.compat.v1.placeholder(tf.float32, shape=[])
                 tf.compat.v1.summary.scalar(loss_name, self.container_loss_placeholders[loss_name], collections=[self.mode+'_summary_plot', self.mode+'_loss'])
                 self.container_validation_feed_dict[self.container_loss_placeholders[loss_name]] = 0
 
@@ -543,7 +543,7 @@ class VRNNGMM(VRNN):
             tf.summary.histogram("out_mu", self.out_mu, collections=[self.mode+'_summary_plot', self.mode+'_stochastic_variables'])
             tf.summary.histogram("out_sigma", self.out_sigma, collections=[self.mode+'_summary_plot', self.mode+'_stochastic_variables'])
 
-        self.loss_summary = tf.summary.merge_all(self.mode+'_summary_plot')
+        self.loss_summary = tf.compat.v1.summary.merge_all(self.mode+'_summary_plot')
 
     def evaluate_gmm_latent_space(self, session):
         gmm_mus, gmm_sigmas = session.run([self.gmm_mu, self.gmm_sigma])

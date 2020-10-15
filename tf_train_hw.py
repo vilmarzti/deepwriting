@@ -92,8 +92,8 @@ def train(config):
 
     # Create sampling graph.
     with tf.name_scope("sampling"):
-        sampling_input_op = tf.placeholder(tf.float32, shape=[1, training_dataset.sequence_length, sum(training_dataset.input_dims)])
-        sampling_sequence_length_op = tf.placeholder(tf.int32, shape=[1])
+        sampling_input_op =tf.compat.v1.placeholder(tf.float32, shape=[1, training_dataset.sequence_length, sum(training_dataset.input_dims)])
+        sampling_sequence_length_op =tf.compat.v1.placeholder(tf.int32, shape=[1])
         sampling_model = Model_cls(config,
                                    reuse=True,
                                    input_op=sampling_input_op,
@@ -230,7 +230,7 @@ def train(config):
     except:
         pass
 
-    training_summary = tf.summary.merge_all('training_status')
+    training_summary = tf.compat.v1.summary.merge_all('training_status')
     training_run_ops = [model.loss_summary, training_summary, model.ops_loss, train_op]
     training_run_ops_with_img_summary = [model.loss_summary, training_summary, model.ops_loss, model.ops_img_summary, train_op]
 
