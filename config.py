@@ -7,11 +7,11 @@ def main():
     config['seed'] = 17
     tf.random.set_seed(17)
 
-    config['training_data'] = '../data/deepwriting_dataset/deepwriting_training.npz'
-    config['validation_data'] = '../data/deepwriting_dataset/deepwriting_validation.npz'
+    config['training_data'] = '../data/dataset/deepwriting_training.npz'
+    config['validation_data'] = '../data/dataset/deepwriting_validation.npz'
     config['validate_model'] = False
 
-    config['model_save_dir'] = './runs/'
+    config['model_save_dir'] = './data/runs/'
 
     config['checkpoint_every_step'] = 1000
     config['validate_every_step'] = 25  # validation performance
