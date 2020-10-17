@@ -1,6 +1,6 @@
 import numpy as np
-import data_utils
-import utils_hw
+from ..source import data_utils
+from ..data_scripts import utils_hw
 import os
 import argparse
 
